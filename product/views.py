@@ -2,8 +2,9 @@ from django.shortcuts import render,get_object_or_404
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from product.models import Product,Category
+from product.models import Product,Category,Review
 from product.serializers import ProductSerializer,CategorySerializer
+from product import serializers
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.generics import ListCreateAPIView,RetrieveUpdateDestroyAPIView
@@ -180,3 +181,14 @@ class CategoryViewSets(ModelViewSet):
     queryset = Category.objects.annotate(product_count=Count('products')).all()
     # queryset = Category.objects.annotate(product_count = Count("products")).all()
     serializer_class = CategorySerializer
+    
+class ReviewViewSets(ModelViewSet):
+    # queryset = Review.objects.all()
+    serializer_class= serializers.ReviewSerializer
+    
+    def get_queryset(self):
+        return Review.objects.filter(product_id = self.kwargs["product_pk"])
+    
+    
+    def get_serializer_context(self):
+        return {"product_pk" : self.kwargs["product_pk"]}
