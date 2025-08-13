@@ -38,7 +38,7 @@ class ProductSerializer(serializers.ModelSerializer):
     
     category = serializers.HyperlinkedRelatedField(
         queryset=Category.objects.all(),
-        view_name = "category-one-list"
+        view_name = "category-detail"
         )
         
     def calculate_tax(self, product):

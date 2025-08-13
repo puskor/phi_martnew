@@ -175,3 +175,8 @@ class ViewOneCategory(APIView):
 class CategoryDetailsList(RetrieveUpdateDestroyAPIView):
     queryset  = Category.objects.all()
     serializer_class = CategorySerializer
+
+class CategoryViewSets(ModelViewSet):
+    queryset = Category.objects.annotate(product_count=Count('products')).all()
+    # queryset = Category.objects.annotate(product_count = Count("products")).all()
+    serializer_class = CategorySerializer
