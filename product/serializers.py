@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category,Product,Review
+from product.models import Category,Product,Review,ProductImage
+from django.contrib.auth import get_user_model
 
 # class CategorySerializer(serializers.Serializer):
 #     id = serializers.IntegerField()
@@ -28,11 +29,17 @@ class CategorySerializer(serializers.ModelSerializer):
 #     )
 #     def calculate_tax(self,products):
 #         return round(products.price * Decimal(1.1),3)
+
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model  = ProductImage
+        fields = ["id","image"]
     
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True , read_only =True)
     class Meta:
         model = Product
-        fields = ["id","name","price","description","stock","price_with_tax","category"]
+        fields = ["id","name","price","description","stock","price_with_tax","category","images"]
         
     price_with_tax = serializers.SerializerMethodField(method_name="calculate_tax")
     
@@ -54,12 +61,34 @@ class ProductSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Stock must be positive")
         return stock
     
-
+class SimpleUserSerializer(serializers.ModelSerializer):
+    
+    name = serializers.SerializerMethodField(
+        method_name= "current_user_name"
+    )
+    class Meta:
+        model = get_user_model()
+        fields = ["id","name"]
+    
+    def current_user_name(self,obj): 
+        return obj.get_full_name()
+        
+        
+        
 class ReviewSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField(
+        method_name= "get_user"
+    )
     class Meta:
         model = Review
-        fields = ["id","name","description","date"]
+        fields = ["id","product","user","review","comment","create_at","update_at"]
+        read_only_fields = ["user","product"]
+        
+    def get_user(self,obj):
+        return SimpleUserSerializer(obj.user).data
         
     def create(self, validated_data):
         product_id = self.context["product_pk"]
         return Review.objects.create(product_id = product_id,**validated_data)
+    
+    

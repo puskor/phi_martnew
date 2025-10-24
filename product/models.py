@@ -1,5 +1,7 @@
 from django.db import models
-
+from django.core.validators import MaxValueValidator,MinValueValidator
+from django.conf import settings
+from .validators import validate_file_size
 # Create your models here.
 
 class Category(models.Model):
@@ -14,7 +16,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10,decimal_places=3)
     stock = models.PositiveIntegerField()
-    image = models.ImageField(upload_to=None,blank=True,null=True)
+    
     category = models.ForeignKey(Category,on_delete=models.CASCADE,related_name="products")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -25,9 +27,17 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name="images")
+    image = models.ImageField(upload_to="products/images/" , validators=[validate_file_size])
+    
 class Review(models.Model):
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
-    name = models.CharField(max_length=40)
-    description = models.TextField() 
-    date = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL ,on_delete=models.CASCADE)
+    comment = models.TextField() 
+    review = models.PositiveIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
     
+    def __str__(self):
+        return f"Review by {self.user} on {self.product.name}"
