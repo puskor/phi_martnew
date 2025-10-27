@@ -19,7 +19,7 @@ from rest_framework.permissions import DjangoModelPermissions,DjangoModelPermiss
 from .permissions import IsReviewerOrReadOnly
 
 class ProductViewSets(ModelViewSet):
-    queryset = Product.objects.all()
+    # queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend,SearchFilter,OrderingFilter]
     # filterset_fields = ["category_id","price"]
@@ -30,6 +30,9 @@ class ProductViewSets(ModelViewSet):
     # permission_classes = [IsAdminOrReadOnly]    
     # permission_classes = [DjangoModelPermissions]
     permission_classes  = [DjangoModelPermissionsOrAnonReadOnly]
+    def get_queryset(self):
+        return Product.objects.prefetch_related("images")
+    
     
     
     

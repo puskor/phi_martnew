@@ -31,6 +31,8 @@ class CategorySerializer(serializers.ModelSerializer):
 #         return round(products.price * Decimal(1.1),3)
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+    
     class Meta:
         model  = ProductImage
         fields = ["id","image"]
