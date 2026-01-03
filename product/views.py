@@ -72,8 +72,8 @@ class ProductImageViewSets(ModelViewSet):
 class CategoryViewSets(ModelViewSet):
     queryset = Category.objects.annotate(product_count=Count('products')).all()
     serializer_class = CategorySerializer
-    # permission_classes = [IsAdminOrReadOnly]
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [IsAdminOrReadOnly]
+    # permission_classes = [DjangoModelPermissions]
     
 
 
